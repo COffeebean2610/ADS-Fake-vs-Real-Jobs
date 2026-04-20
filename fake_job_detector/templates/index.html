@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – JobGuard AI{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ──────────────────────────────────────────────────────────────────── -->
+<section class="hero-section">
+  <div class="hero-grid-bg"></div>
+  <div class="container position-relative">
+    <div class="row align-items-center min-vh-80">
+      <div class="col-lg-7">
+        <span class="badge badge-pill-custom mb-3">
+          <i class="bi bi-cpu me-1"></i>AI-Powered Detection
+        </span>
+        <h1 class="hero-title">
+          Stop Fake Jobs<br>
+          <span class="highlight">Before They Stop You.</span>
+        </h1>
+        <p class="hero-sub">
+          Our NLP engine analyses job postings in real time — detecting
+          fraudulent listings with <strong>machine-learning precision</strong> so job
+          seekers and recruiters can trust what they see.
+        </p>
+        <div class="d-flex gap-3 flex-wrap mt-4">
+          <a href="{{ url_for('predict') }}" class="btn btn-detect btn-lg">
+            <i class="bi bi-lightning-charge-fill me-2"></i>Analyse a Job Now
+          </a>
+          <a href="{{ url_for('analytics') }}" class="btn btn-outline-light btn-lg">
+            <i class="bi bi-bar-chart-line me-2"></i>View Analytics
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-5 text-center d-none d-lg-block">
+        <div class="hero-illustration">
+          <i class="bi bi-shield-check-fill shield-icon"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STAT CARDS ─────────────────────────────────────────────────────────────── -->
+<section class="py-5 stats-section">
+  <div class="container">
+    <div class="row g-4">
+
+      {% set total = analytics.get('total_jobs', 17880) %}
+      {% set fake  = analytics.get('fake_jobs',  866)   %}
+      {% set real  = analytics.get('real_jobs',  17014) %}
+      {% set fp    = analytics.get('fake_pct',   4.84)  %}
+      {% set rp    = analytics.get('real_pct',   95.16) %}
+
+      <!-- Total -->
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card--blue">
+          <div class="stat-icon"><i class="bi bi-briefcase-fill"></i></div>
+          <div class="stat-body">
+            <span class="stat-value">{{ "{:,}".format(total) }}</span>
+            <span class="stat-label">Total Job Postings</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fake -->
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card--red">
+          <div class="stat-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+          <div class="stat-body">
+            <span class="stat-value">{{ "{:,}".format(fake) }}</span>
+            <span class="stat-label">Fake Postings ({{ fp }}%)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real -->
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card--green">
+          <div class="stat-icon"><i class="bi bi-check-circle-fill"></i></div>
+          <div class="stat-body">
+            <span class="stat-value">{{ "{:,}".format(real) }}</span>
+            <span class="stat-label">Legitimate Postings ({{ rp }}%)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model accuracy -->
+      {% set models = analytics.get('models', {}) %}
+      {% set best   = analytics.get('best_model_name', 'Logistic Regression') %}
+      {% set acc    = models[best]['accuracy'] if best in models else 98.2 %}
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-card--purple">
+          <div class="stat-icon"><i class="bi bi-cpu-fill"></i></div>
+          <div class="stat-body">
+            <span class="stat-value">{{ acc }}%</span>
+            <span class="stat-label">Model Accuracy</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ───────────────────────────────────────────────────────────── -->
+<section class="py-5 how-section">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <span class="section-tag">PROCESS</span>
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-sub">Three steps from input to insight.</p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4">
+        <div class="how-card">
+          <div class="how-step">01</div>
+          <i class="bi bi-pencil-square how-icon"></i>
+          <h5>Paste the Job Posting</h5>
+          <p>Enter the job title, description, and requirements into the Detect form.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="how-card">
+          <div class="how-step">02</div>
+          <i class="bi bi-gear-wide-connected how-icon"></i>
+          <h5>NLP + ML Analysis</h5>
+          <p>Our pipeline cleans text, applies TF-IDF, and feeds it to the trained classifier.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="how-card">
+          <div class="how-step">03</div>
+          <i class="bi bi-shield-check how-icon"></i>
+          <h5>Instant Verdict</h5>
+          <p>Get a <strong>Fake / Real</strong> result with a confidence score in milliseconds.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DATASET DISTRIBUTION (Chart.js doughnut) ──────────────────────────────── -->
+<section class="py-5 chart-section">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-5">
+        <span class="section-tag">DATASET</span>
+        <h2 class="section-title">Training Data Snapshot</h2>
+        <p>
+          The model was trained on the <strong>Kaggle Fake Job Postings</strong> dataset
+          containing {{ "{:,}".format(total) }} listings.
+          Fraudulent postings represent only {{ fp }}% — making it a real-world
+          class-imbalanced challenge, handled via balanced class weights.
+        </p>
+        <ul class="insight-list">
+          <li><i class="bi bi-dot text-danger fs-4"></i> {{ fake }} fraudulent listings</li>
+          <li><i class="bi bi-dot text-success fs-4"></i> {{ real }} legitimate listings</li>
+          <li><i class="bi bi-dot text-primary fs-4"></i> Balanced using class_weight="balanced"</li>
+        </ul>
+      </div>
+      <div class="col-lg-4 mx-auto">
+        <div class="chart-card">
+          <canvas id="distChart" height="260"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ───────────────────────────────────────────────────────────────────── -->
+<section class="cta-section py-5">
+  <div class="container text-center">
+    <h2 class="cta-title">Ready to verify a job posting?</h2>
+    <p class="cta-sub mb-4">Paste any job ad and let the model decide in seconds.</p>
+    <a href="{{ url_for('predict') }}" class="btn btn-detect btn-lg">
+      <i class="bi bi-lightning-charge-fill me-2"></i>Start Detection
+    </a>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const ctx = document.getElementById('distChart').getContext('2d');
+new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Real Jobs', 'Fake Jobs'],
+    datasets: [{
+      data: [{{ real }}, {{ fake }}],
+      backgroundColor: ['#22c55e', '#ef4444'],
+      borderColor: ['#16a34a', '#dc2626'],
+      borderWidth: 2,
+      hoverOffset: 8
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '68%',
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { color: '#cbd5e1', font: { size: 13, family: 'Space Grotesk' }, padding: 16 }
+      },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString()}`
+        }
+      }
+    }
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}About – JobGuard AI{% endblock %}
+
+{% block content %}
+
+<section class="page-hero py-5">
+  <div class="container">
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-7">
+        <span class="section-tag">ABOUT THE PROJECT</span>
+        <h1 class="page-hero-title mt-2">JobGuard AI</h1>
+        <p class="page-hero-sub">
+          A final-year engineering project built to tackle the growing
+          problem of fraudulent job postings using modern NLP and machine learning.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-4 pb-5">
+  <div class="container">
+    <div class="row g-5">
+
+      <!-- Left: Project info -->
+      <div class="col-lg-7">
+
+        <div class="about-card mb-4">
+          <h5 class="about-card-title"><i class="bi bi-flag-fill me-2 accent"></i>The Problem</h5>
+          <p>
+            Online job fraud costs job seekers millions of dollars annually and
+            causes significant psychological harm. Fake postings harvest personal
+            data, collect advance fees, or lure applicants into scams.
+            Traditional keyword filters miss sophisticated attacks that use
+            genuine-sounding language.
+          </p>
+          <p class="mb-0">
+            <strong>JobGuard AI</strong> addresses this gap by applying
+            <em>Natural Language Processing</em> — the same techniques used by
+            email spam filters — to automatically flag suspicious listings before
+            a job seeker wastes time or shares sensitive information.
+          </p>
+        </div>
+
+        <div class="about-card mb-4">
+          <h5 class="about-card-title"><i class="bi bi-diagram-3-fill me-2 accent"></i>System Architecture</h5>
+          <ol class="arch-list">
+            <li>
+              <strong>Data Ingestion</strong> — Kaggle Fake Job Postings dataset
+              (17,880 records, 18 columns).
+            </li>
+            <li>
+              <strong>NLP Preprocessing</strong> — Lowercasing, URL removal,
+              punctuation stripping, stop-word filtering (NLTK).
+            </li>
+            <li>
+              <strong>Feature Engineering</strong> — Six text columns merged into
+              a single document; TF-IDF with 10k features + bigrams.
+            </li>
+            <li>
+              <strong>Model Training</strong> — Logistic Regression and Random
+              Forest evaluated; best saved via <code>joblib</code>.
+            </li>
+            <li>
+              <strong>Serving</strong> — Flask REST routes; model loaded once at
+              startup; results returned in &lt;100 ms.
+            </li>
+          </ol>
+        </div>
+
+        <div class="about-card mb-4">
+          <h5 class="about-card-title"><i class="bi bi-bullseye me-2 accent"></i>Impact & Use Cases</h5>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <div class="use-case-item">
+                <i class="bi bi-person-check use-case-icon"></i>
+                <div>
+                  <strong>Job Seekers</strong>
+                  <p class="mb-0 small">Verify postings before applying or sharing data.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="use-case-item">
+                <i class="bi bi-building-check use-case-icon"></i>
+                <div>
+                  <strong>Job Portals</strong>
+                  <p class="mb-0 small">Integrate API for automatic moderation.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="use-case-item">
+                <i class="bi bi-shield-lock use-case-icon"></i>
+                <div>
+                  <strong>HR Departments</strong>
+                  <p class="mb-0 small">Audit third-party listings before forwarding.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="use-case-item">
+                <i class="bi bi-mortarboard use-case-icon"></i>
+                <div>
+                  <strong>Career Centres</strong>
+                  <p class="mb-0 small">Protect students from campus recruitment scams.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right: Tech stack & team -->
+      <div class="col-lg-5">
+
+        <div class="about-card mb-4">
+          <h5 class="about-card-title"><i class="bi bi-stack me-2 accent"></i>Tech Stack</h5>
+          <div class="tech-stack-grid">
+            <div class="tech-item">
+              <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg"
+                   alt="Python" width="36"/>
+              <span>Python 3.11</span>
+            </div>
+            <div class="tech-item">
+              <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/flask/flask-original.svg"
+                   alt="Flask" width="36" style="filter:invert(1)"/>
+              <span>Flask 3</span>
+            </div>
+            <div class="tech-item">
+              <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/scikitlearn/scikitlearn-original.svg"
+                   alt="Sklearn" width="36"/>
+              <span>Scikit-learn</span>
+            </div>
+            <div class="tech-item">
+              <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/pandas/pandas-original.svg"
+                   alt="Pandas" width="36"/>
+              <span>Pandas</span>
+            </div>
+            <div class="tech-item">
+              <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/bootstrap/bootstrap-original.svg"
+                   alt="Bootstrap" width="36"/>
+              <span>Bootstrap 5</span>
+            </div>
+            <div class="tech-item">
+              <img src="https://www.chartjs.org/img/chartjs-logo.svg"
+                   alt="Chart.js" width="36"/>
+              <span>Chart.js</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-card mb-4">
+          <h5 class="about-card-title"><i class="bi bi-database me-2 accent"></i>Dataset</h5>
+          <p class="mb-2">
+            <strong>Fake Job Postings</strong> by Shivam Bansal on Kaggle.
+          </p>
+          <ul class="dataset-list">
+            <li><i class="bi bi-check2 me-1 text-success"></i>17,880 records</li>
+            <li><i class="bi bi-check2 me-1 text-success"></i>18 feature columns</li>
+            <li><i class="bi bi-check2 me-1 text-success"></i>866 fraudulent listings (4.8%)</li>
+            <li><i class="bi bi-check2 me-1 text-success"></i>Real-world class imbalance</li>
+          </ul>
+          <a href="https://www.kaggle.com/datasets/shivamb/real-or-fake-fake-jobposting-prediction"
+             class="btn btn-sm btn-outline-light mt-2" target="_blank">
+            <i class="bi bi-box-arrow-up-right me-1"></i>View on Kaggle
+          </a>
+        </div>
+
+        <div class="about-card">
+          <h5 class="about-card-title"><i class="bi bi-mortarboard me-2 accent"></i>Academic Context</h5>
+          <p class="mb-0 small">
+            This project was developed as a <strong>Final Year B.E. Project</strong>
+            in Computer Engineering. It demonstrates practical application of
+            NLP, ML classification, REST API design, and full-stack web development.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

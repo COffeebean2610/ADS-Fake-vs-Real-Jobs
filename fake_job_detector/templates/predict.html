@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Detect Fake Job – JobGuard AI{% endblock %}
+
+{% block content %}
+
+<section class="page-hero py-5">
+  <div class="container">
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-7">
+        <span class="section-tag">DETECTION ENGINE</span>
+        <h1 class="page-hero-title mt-2">Analyse a Job Posting</h1>
+        <p class="page-hero-sub">
+          Fill in the details below. Our NLP model will evaluate the posting
+          and return a <strong>Fake / Real</strong> verdict with confidence score.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-4 pb-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+
+        <!-- Tips banner -->
+        <div class="tips-banner mb-4">
+          <i class="bi bi-lightbulb-fill me-2 text-warning"></i>
+          <strong>Pro tip:</strong> The more information you provide, the more
+          accurate the prediction. Description and requirements carry the most weight.
+        </div>
+
+        <!-- Form card -->
+        <div class="form-card">
+          <form action="{{ url_for('result') }}" method="POST" id="predictForm">
+
+            <!-- Job Title -->
+            <div class="mb-4">
+              <label class="form-label-custom" for="title">
+                <i class="bi bi-type-h1 me-1"></i>Job Title
+                <span class="required-star">*</span>
+              </label>
+              <input type="text" class="form-control form-ctrl-custom" id="title"
+                     name="title" placeholder="e.g. Senior Data Analyst – Remote"
+                     required/>
+            </div>
+
+            <!-- Company / Profile -->
+            <div class="mb-4">
+              <label class="form-label-custom" for="company">
+                <i class="bi bi-building me-1"></i>Company Profile
+              </label>
+              <textarea class="form-control form-ctrl-custom" id="company"
+                        name="company" rows="3"
+                        placeholder="Brief description of the company, mission, size…"></textarea>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-4">
+              <label class="form-label-custom" for="description">
+                <i class="bi bi-file-text me-1"></i>Job Description
+                <span class="required-star">*</span>
+              </label>
+              <textarea class="form-control form-ctrl-custom" id="description"
+                        name="description" rows="5"
+                        placeholder="Paste the full job description here…"
+                        required></textarea>
+              <div class="char-counter"><span id="descCount">0</span> characters</div>
+            </div>
+
+            <!-- Requirements -->
+            <div class="mb-4">
+              <label class="form-label-custom" for="requirements">
+                <i class="bi bi-list-check me-1"></i>Requirements / Qualifications
+              </label>
+              <textarea class="form-control form-ctrl-custom" id="requirements"
+                        name="requirements" rows="4"
+                        placeholder="Skills, experience, education requirements…"></textarea>
+            </div>
+
+            <!-- Benefits -->
+            <div class="mb-4">
+              <label class="form-label-custom" for="benefits">
+                <i class="bi bi-gift me-1"></i>Benefits (optional)
+              </label>
+              <textarea class="form-control form-ctrl-custom" id="benefits"
+                        name="benefits" rows="2"
+                        placeholder="Health insurance, remote work, equity…"></textarea>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex gap-3 flex-wrap mt-5">
+              <button type="submit" class="btn btn-detect btn-lg flex-grow-1" id="submitBtn">
+                <i class="bi bi-lightning-charge-fill me-2"></i>
+                <span id="btnText">Analyse Posting</span>
+                <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none"
+                      role="status"></span>
+              </button>
+              <button type="reset" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-arrow-counterclockwise me-2"></i>Clear
+              </button>
+            </div>
+
+          </form>
+        </div><!-- /form-card -->
+
+        <!-- Model info badge -->
+        <div class="model-badge mt-4">
+          <i class="bi bi-cpu me-1"></i>
+          Powered by TF-IDF + Logistic Regression / Random Forest &nbsp;|&nbsp;
+          Trained on Kaggle Fake Job Postings Dataset
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Character counter for description
+const desc      = document.getElementById('description');
+const descCount = document.getElementById('descCount');
+desc.addEventListener('input', () => {
+  descCount.textContent = desc.value.length;
+});
+
+// Show spinner on submit
+document.getElementById('predictForm').addEventListener('submit', () => {
+  document.getElementById('btnText').textContent   = 'Analysing…';
+  document.getElementById('btnSpinner').classList.remove('d-none');
+  document.getElementById('submitBtn').disabled    = true;
+});
+</script>
+{% endblock %}

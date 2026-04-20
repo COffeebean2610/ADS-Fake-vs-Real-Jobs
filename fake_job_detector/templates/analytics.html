@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% block title %}Analytics – JobGuard AI{% endblock %}
+
+{% block content %}
+
+<section class="page-hero py-5">
+  <div class="container">
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-7">
+        <span class="section-tag">MODEL INSIGHTS</span>
+        <h1 class="page-hero-title mt-2">Analytics Dashboard</h1>
+        <p class="page-hero-sub">
+          Performance metrics, confusion matrix, and dataset breakdown
+          for the trained detection models.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-4 pb-5">
+  <div class="container">
+
+    {% set models   = data.get('models', {}) %}
+    {% set best     = data.get('best_model_name', 'Logistic Regression') %}
+    {% set total    = data.get('total_jobs', 17880) %}
+    {% set fake_c   = data.get('fake_jobs', 866) %}
+    {% set real_c   = data.get('real_jobs', 17014) %}
+
+    <!-- ── BEST MODEL BADGE ──────────────────────────────────────────────── -->
+    <div class="row mb-5">
+      <div class="col">
+        <div class="best-model-banner">
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <i class="bi bi-trophy-fill best-trophy"></i>
+            <div>
+              <p class="mb-0 text-muted small">Best Performing Model</p>
+              <h4 class="mb-0 fw-bold">{{ best }}</h4>
+            </div>
+            {% if best in models %}
+            <div class="ms-auto d-flex gap-4 flex-wrap text-center">
+              <div>
+                <div class="metric-num">{{ models[best]['accuracy'] }}%</div>
+                <div class="metric-lbl">Accuracy</div>
+              </div>
+              <div>
+                <div class="metric-num">{{ models[best]['roc_auc'] }}</div>
+                <div class="metric-lbl">ROC-AUC</div>
+              </div>
+              <div>
+                <div class="metric-num">{{ models[best]['f1_fake'] }}</div>
+                <div class="metric-lbl">F1 (Fake)</div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODEL COMPARISON TABLE ──────────────────────────────────────── -->
+    <div class="row mb-5">
+      <div class="col-lg-7">
+        <h5 class="analytics-section-title mb-3">
+          <i class="bi bi-table me-1"></i>Model Comparison
+        </h5>
+        <div class="analytics-card">
+          <div class="table-responsive">
+            <table class="table analytics-table mb-0">
+              <thead>
+                <tr>
+                  <th>Model</th>
+                  <th>Accuracy</th>
+                  <th>ROC-AUC</th>
+                  <th>Precision (Fake)</th>
+                  <th>Recall (Fake)</th>
+                  <th>F1 (Fake)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for name, m in models.items() %}
+                <tr {% if name == best %}class="best-row"{% endif %}>
+                  <td>
+                    {{ name }}
+                    {% if name == best %}
+                    <i class="bi bi-star-fill text-warning ms-1" title="Best model"></i>
+                    {% endif %}
+                  </td>
+                  <td><span class="acc-badge">{{ m['accuracy'] }}%</span></td>
+                  <td>{{ m['roc_auc'] }}</td>
+                  <td>{{ m['precision_fake'] }}</td>
+                  <td>{{ m['recall_fake'] }}</td>
+                  <td>{{ m['f1_fake'] }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bar chart -->
+      <div class="col-lg-5">
+        <h5 class="analytics-section-title mb-3">
+          <i class="bi bi-bar-chart me-1"></i>Accuracy Comparison
+        </h5>
+        <div class="analytics-card" style="height:220px">
+          <canvas id="modelCompareChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CHARTS ROW ─────────────────────────────────────────────────── -->
+    <div class="row g-4 mb-5">
+
+      <!-- Confusion Matrix image -->
+      <div class="col-lg-6">
+        <h5 class="analytics-section-title mb-3">
+          <i class="bi bi-grid-3x3 me-1"></i>Confusion Matrix ({{ best }})
+        </h5>
+        <div class="analytics-card text-center">
+          <img src="{{ url_for('static', filename='charts/confusion_matrix.png') }}"
+               alt="Confusion Matrix" class="img-fluid chart-img"
+               onerror="this.style.display='none'; document.getElementById('noImg1').style.display='block'"/>
+          <p id="noImg1" class="text-muted small mt-3 d-none">
+            Run <code>python train.py</code> to generate this chart.
+          </p>
+        </div>
+      </div>
+
+      <!-- Distribution image -->
+      <div class="col-lg-6">
+        <h5 class="analytics-section-title mb-3">
+          <i class="bi bi-pie-chart me-1"></i>Fake vs Real Distribution
+        </h5>
+        <div class="analytics-card">
+          <canvas id="distDoughnut"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── DATASET STATS ──────────────────────────────────────────────── -->
+    <div class="row g-4">
+      <div class="col">
+        <h5 class="analytics-section-title mb-3">
+          <i class="bi bi-database me-1"></i>Dataset Statistics
+        </h5>
+        <div class="row g-3">
+          <div class="col-sm-4">
+            <div class="mini-stat-card">
+              <span class="mini-num">{{ "{:,}".format(total) }}</span>
+              <span class="mini-lbl">Total Records</span>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="mini-stat-card mini-stat--red">
+              <span class="mini-num">{{ "{:,}".format(fake_c) }}</span>
+              <span class="mini-lbl">Fraudulent ({{ data.get('fake_pct', 4.84) }}%)</span>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="mini-stat-card mini-stat--green">
+              <span class="mini-num">{{ "{:,}".format(real_c) }}</span>
+              <span class="mini-lbl">Legitimate ({{ data.get('real_pct', 95.16) }}%)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ── Model accuracy bar chart ─────────────────────────────────────────────────
+{% set models = data.get('models', {}) %}
+{% set names  = models.keys()|list %}
+{% set accs   = [] %}
+{% for n in names %}{% set _ = accs.append(models[n]['accuracy']) %}{% endfor %}
+
+const modelCtx = document.getElementById('modelCompareChart').getContext('2d');
+new Chart(modelCtx, {
+  type: 'bar',
+  data: {
+    labels: {{ names | tojson }},
+    datasets: [{
+      label: 'Accuracy (%)',
+      data:  {{ accs | tojson }},
+      backgroundColor: ['#3b82f6', '#f97316'],
+      borderRadius: 8,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: c => ` ${c.parsed.x}%` } }
+    },
+    scales: {
+      x: {
+        min: 0, max: 105,
+        ticks: { color: '#94a3b8', callback: v => v + '%' },
+        grid:  { color: 'rgba(148,163,184,0.1)' }
+      },
+      y: { ticks: { color: '#cbd5e1' }, grid: { display: false } }
+    }
+  }
+});
+
+// ── Distribution doughnut ────────────────────────────────────────────────────
+const distCtx = document.getElementById('distDoughnut').getContext('2d');
+new Chart(distCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Real Jobs', 'Fake Jobs'],
+    datasets: [{
+      data: [{{ real_c }}, {{ fake_c }}],
+      backgroundColor: ['#22c55e', '#ef4444'],
+      borderColor:     ['#16a34a', '#dc2626'],
+      borderWidth: 2,
+      hoverOffset: 8
+    }]
+  },
+  options: {
+    cutout: '65%',
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { color: '#cbd5e1', font: { size: 13, family: 'Space Grotesk' }, padding: 16 }
+      },
+      tooltip: {
+        callbacks: { label: c => ` ${c.label}: ${c.parsed.toLocaleString()}` }
+      }
+    }
+  }
+});
+</script>
+{% endblock %}

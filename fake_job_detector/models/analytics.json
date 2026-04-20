@@ -1,0 +1,27 @@
+{
+  "best_model_name": "Logistic Regression",
+  "total_jobs": 3000,
+  "fake_jobs": 1472,
+  "real_jobs": 1528,
+  "fake_pct": 49.07,
+  "real_pct": 50.93,
+  "models": {
+    "Logistic Regression": {
+      "accuracy": 100.0,
+      "roc_auc": 1.0,
+      "precision_fake": 1.0,
+      "recall_fake": 1.0,
+      "f1_fake": 1.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      306,
+      0
+    ],
+    [
+      0,
+      294
+    ]
+  ]
+}

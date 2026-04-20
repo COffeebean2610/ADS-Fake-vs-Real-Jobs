@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Result – JobGuard AI{% endblock %}
+
+{% block content %}
+
+<section class="page-hero py-5">
+  <div class="container">
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-6">
+        <span class="section-tag">VERDICT</span>
+        <h1 class="page-hero-title mt-2">Detection Result</h1>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-3 pb-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+
+        <!-- ── VERDICT CARD ──────────────────────────────────────────────── -->
+        <div class="verdict-card {% if is_fake %}verdict--fake{% else %}verdict--real{% endif %} mb-4">
+          <div class="verdict-icon-wrap">
+            {% if is_fake %}
+              <i class="bi bi-exclamation-octagon-fill verdict-icon-big"></i>
+            {% else %}
+              <i class="bi bi-shield-check-fill verdict-icon-big"></i>
+            {% endif %}
+          </div>
+          <div class="verdict-body">
+            <p class="verdict-meta mb-1">Our model classified this posting as</p>
+            <h2 class="verdict-label">{{ label }}</h2>
+            <p class="verdict-confidence">
+              Confidence: <strong>{{ confidence }}%</strong>
+            </p>
+          </div>
+        </div>
+
+        <!-- ── PROBABILITY BAR ───────────────────────────────────────────── -->
+        <div class="prob-card mb-4">
+          <h6 class="prob-title mb-3"><i class="bi bi-activity me-1"></i>Probability Breakdown</h6>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="prob-label"><i class="bi bi-check-circle-fill text-success me-1"></i>Real Job</span>
+              <span class="prob-value">{{ real_prob }}%</span>
+            </div>
+            <div class="progress prog-bar-custom">
+              <div class="progress-bar bg-success" role="progressbar"
+                   style="width: {{ real_prob }}%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="d-flex justify-content-between mb-1">
+              <span class="prob-label"><i class="bi bi-exclamation-triangle-fill text-danger me-1"></i>Fake Job</span>
+              <span class="prob-value">{{ fake_prob }}%</span>
+            </div>
+            <div class="progress prog-bar-custom">
+              <div class="progress-bar bg-danger" role="progressbar"
+                   style="width: {{ fake_prob }}%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── GAUGE CHART ──────────────────────────────────────────────── -->
+        <div class="prob-card mb-4 text-center">
+          <h6 class="prob-title mb-3"><i class="bi bi-pie-chart-fill me-1"></i>Confidence Distribution</h6>
+          <canvas id="gaugeChart" height="200"></canvas>
+        </div>
+
+        <!-- ── INPUT SUMMARY ─────────────────────────────────────────────── -->
+        <div class="summary-card mb-4">
+          <h6 class="summary-title"><i class="bi bi-file-earmark-text me-1"></i>Input Summary</h6>
+          <table class="table table-sm summary-table mb-0">
+            <tbody>
+              {% if input.title %}
+              <tr><th>Job Title</th><td>{{ input.title }}</td></tr>
+              {% endif %}
+              {% if input.company %}
+              <tr><th>Company</th><td>{{ input.company[:120] }}{% if input.company|length > 120 %}…{% endif %}</td></tr>
+              {% endif %}
+              {% if input.description %}
+              <tr><th>Description</th><td>{{ input.description[:200] }}…</td></tr>
+              {% endif %}
+              {% if input.requirements %}
+              <tr><th>Requirements</th><td>{{ input.requirements[:150] }}…</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ── ADVICE BOX ─────────────────────────────────────────────────── -->
+        {% if is_fake %}
+        <div class="advice-box advice--danger mb-4">
+          <i class="bi bi-shield-exclamation me-2 fs-5"></i>
+          <div>
+            <strong>Warning:</strong> This posting shows patterns commonly found in
+            fraudulent listings — vague language, unrealistic benefits, or missing
+            company details. Exercise caution before sharing personal information or
+            paying any fees.
+          </div>
+        </div>
+        {% else %}
+        <div class="advice-box advice--success mb-4">
+          <i class="bi bi-shield-check me-2 fs-5"></i>
+          <div>
+            <strong>Looks Good:</strong> This posting matches patterns of legitimate
+            job listings. Always verify independently — cross-check the company website
+            and never pay upfront fees.
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- ── ACTIONS ─────────────────────────────────────────────────────── -->
+        <div class="d-flex gap-3 flex-wrap">
+          <a href="{{ url_for('predict') }}" class="btn btn-detect btn-lg">
+            <i class="bi bi-arrow-repeat me-2"></i>Analyse Another
+          </a>
+          <a href="{{ url_for('analytics') }}" class="btn btn-outline-light btn-lg">
+            <i class="bi bi-bar-chart-line me-2"></i>View Analytics
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const ctx = document.getElementById('gaugeChart').getContext('2d');
+new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Real', 'Fake'],
+    datasets: [{
+      data: [{{ real_prob }}, {{ fake_prob }}],
+      backgroundColor: ['#22c55e', '#ef4444'],
+      borderColor:     ['#16a34a', '#dc2626'],
+      borderWidth: 2,
+      hoverOffset: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '72%',
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { color: '#cbd5e1', font: { size: 13, family: 'Space Grotesk' }, padding: 16 }
+      },
+      tooltip: {
+        callbacks: { label: c => ` ${c.label}: ${c.parsed}%` }
+      }
+    }
+  }
+});
+</script>
+{% endblock %}
